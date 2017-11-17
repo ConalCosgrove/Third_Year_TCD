@@ -1,7 +1,5 @@
 from github import Github
 import sqlite3 as sqlite
-import plotly.plotly as plotly
-import plotly.graph_objs as graph
 import sys
 
 g = Github("conalcosgrove", "Greenlion4603")
@@ -9,12 +7,22 @@ g = Github("conalcosgrove", "Greenlion4603")
 
 import datetime as dt
 
-class User:
-    id = 0
-    name = ''
-    num_of_commits = 0
+class Node:
+    id = ""
+    hour = 0
+    minute = 0
+    second = 0
+    nextNode = None
 
 
+class LinkedList:
+    head = None
+    def addNode(self,n):
+        if self.head is None:
+            self.head = n
+        else:
+            n.nextNode = self.head
+            self.head = n
 
 d = dict()
 count = 0
@@ -22,51 +30,54 @@ count = 0
 con = None
 
 rep = g.get_organization('facebook').get_repo('react')
-
+commitLog = LinkedList()
 for commit in rep.get_commits():
-    if count >= 100:
+    if count >= 5000:
         break
     count = count + 1
     try:
-        name = commit.author.name
-        id = commit.author.id
-        date = commit.commit.author.date.strftime("%d/%m/%y  %H:%M:%S")
-        if name in d:
-            d[commit.author.name].num_of_commits = d[commit.author.name].num_of_commits + 1
-            print("{}: {} {} + 1".format(count,date,commit.author.name.encode('utf-8')))
-        else:
-            newUser = User()
-            newUser.name = name.encode('utf-8')
-            newUser.id = id
-            newUser.num_of_commits = 1
-            d[name] = newUser
-            print("{}: {} New contributor: {}".format(count,date,commit.author.name.encode('utf-8')))
+        id = commit.sha
+        time_hour = commit.commit.author.date.hour
+        time_minute = commit.commit.author.date.minute
+        time_second = commit.commit.author.date.second
+        nnode = Node()
+
+        nnode.id = id
+        nnode.hour = time_hour
+        nnode.minute = time_minute
+        nnode.second = time_second
+
+        commitLog.addNode(nnode)
+        #print(str(time_hour) + ":" + str(time_minute) + ":" + str(time_second))
+
 
         # print("Name: " + commit.author.name + " Commit Id: " + commit.commit.message)
     except Exception as e:
         print(e)
 
+printNode = commitLog.head
+count = 0
+
+'''while printNode is not None:
+    print("{} {} {}:{}:{}".format(count,printNode.id,printNode.hour,printNode.minute,printNode.second))
+    printNode = printNode.nextNode
+    count = count + 1
+'''
+
 try:
     con = sqlite.connect('db/data.db')
     cursor = con.cursor()
 
-    for key in d.keys():
-        try:
+    printNode = commitLog.head
+    count = 0
 
-            name = d[key].name.encode('utf-8')
-            if name is None:
-                name = "skip"
-            else:
-                id = d[key].id
-                commits = d[key].num_of_commits
-                print('hello')
-                string = "INSERT INTO COMMITTERS VALUES (" + str(id) + ",\"" + name.encode('utf-8') + "\"," + str(commits) + ");"
-                print(string.encode('utf-8'))
-                cursor.execute(string.encode('utf-8'))
-        except sqlite.Error as e:
-            print(e)
+    while printNode is not None:
+        string = "INSERT INTO COMMITS VALUES (\"" + str(printNode.id) + "\"," + str(printNode.hour) + "," + str(printNode.minute) + "," + str(printNode.second) + ");"
+        cursor.execute(string)
+        print(string)
+        printNode = printNode.nextNode
 
-    cursor.execute('SELECT * FROM COMMITTERS;')
+    cursor.execute('SELECT * FROM COMMITS;')
     rows = cursor.fetchall()
     for row in rows:
         print(row)
@@ -79,3 +90,4 @@ finally:
     if con:
         con.commit()
         con.close()
+
