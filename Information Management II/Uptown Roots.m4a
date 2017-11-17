@@ -1,0 +1,19 @@
+Info Management II
+
+1. Intro to databases 
+2. Database Architextures 
+3. Database Models 
+4. Relational Algebra or Data Manipulation
+5. Designing Databases: Functional Dependency
+6. Designing Databases: The Entity Relationship 
+7. Designing Databases: Mapping from ER to Relations
+
+Disadvantages of File System
+
+Lack of data independence 
+Potential of Data Redundency 
+Lack of support for data integrity (i.e consistency and accuracy of the information)
+Inadequate backup and recovery mechanisms 
+Inadequate query language support
+Inadequate support for management of metadata 
+Independence from Applications, Concurrent Access

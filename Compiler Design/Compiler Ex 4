@@ -1,0 +1,2 @@
+Compiler Ex 4
+i := <conditional> ? <true>:<false> 

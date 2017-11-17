@@ -1,0 +1,287 @@
+IA32 and x64 Assembly Language Main Points: 
+
+IA32: 
+	
+	- 32 bit CPU
+	- 32 bit virtual and physical address space (2^32 bytes ) 
+	- Each instruction a multiple of bytes in length
+
+
+
+	Registers: 
+
+		- 32 bits wide 
+
+		- 4 general purpose registers
+		- eax ebx ecx edx 
+
+		- 4 registers generally used as memory address registers
+		- esi and edi 
+		- ebp:- frame pointer 
+		- esp:- stack pointer 
+
+		- Status Register
+		- eflags
+
+		- Instruction Pointer/Program Counter 
+		- eip
+
+		<----------32----------->
+		|__________eax__________|
+		|__________ebx__________|
+		|__________ecx__________|
+		|__________edx__________|
+		|__________esi__________|
+		|__________edi__________|
+		|__________ebp__________|
+		|__________esp__________|
+		_________________________
+		|________eflags_________|
+		|__________eip__________|
+
+
+
+	Anatomy of an IA32 Register: 
+
+		- The 'e' in eax stands for extended. Original 16 bit register is 'ax'.
+		- The first 16 bits of register can be accessed as ax, backwards compatibility.
+		- You can also access first and last 8 bits of ax ie. bits 0-7 and 8-15.
+		- This is true with all 4 general purpose registers
+
+		32			  16		8		 0
+		_________________________________
+		|______________|___ah___|___al___|
+					   <--------ax------->
+		<--------------eax--------------->
+
+
+
+	Instruction Format
+
+		-Two address 
+
+			add eax, ebx 	;eax = eax + ebx[right to left]
+
+		- Permitted Address Combinations
+
+			- register / register 
+			- register / immediate
+			- register / memory
+			- memory / register 
+
+		- N.B memory/memory and memory/immediate are NOT ALLOWED
+
+
+
+	Basic Instruction Set: 
+
+		mov 	Move
+		add 	Add
+		sub		Subtract
+		imul	Signed Multiply
+		mul 	Unsigned Multiply
+		inc 	Increment
+		dec		Decrement
+		neg		Negate/Invert
+		cmp		Compare
+		push 	Push to stack
+		pop		Pop from stack
+
+
+
+	Function Calling 
+
+	- The general steps normally carried out during a function call/return 
+
+		- pass parameters [evaluate and push on stack] 
+		- enter new function [push return address and jump to first instruction of function]
+		- save ebp [push to stack]
+		- set ebp equal to esp [new frame pointer]
+		- allocate space for local variables [on stack by decrementing esp]
+		- save non volatile registers eg. ebx [on stack]
+
+			~function body~
+
+		- restore saved registers [from stack]
+		- de-allocate space for local variables [increment esp]
+		- return to calling function [pop return address from stack]
+		- remove parameters [increment esp]
+
+
+
+	IA32 Function Stack Frame 
+
+		- _cdecl calling convention used so that C/C++ and IA32 assembly can be mixed
+		- Stack grows down in memory, highest address to lowest.
+		- Function parameters are passed left to right.
+						<-----
+		- For example: f(x,y,z) push z, push y, push z.
+
+		- ebp is used as a frame pointer. 
+		- Parameters and locals are accessed relative to ebp
+		- For example to access x we use [ebp + 8]
+
+			[				 ]
+			[				 ] _
+			[	   p2		 ]  |
+			[	   p1		 ]  |-- pushed parameters 
+			[	   p0		 ] _|
+			[ return address ]
+	   ebp->[	saved ebp    ] _
+			[local variable 0]  |__ local variables 
+			[local variable 1] _|
+			[      ebx       ]  |__ saved registers 
+			[      esi       ] _|  
+
+
+
+	IA32 Calling Conventions 
+
+		- Function result returned in eax 
+		- eax, ecx and edx considered volatile, and are NOT PRESERVED across function calls
+		- Caller removes parameters 
+
+		- Why are parameters pushed from left to right?
+			- C/C++ pushes parameters right-to-left so functions like printf() 
+			  which can handle an arbitrary number of parameters can be handled more easily 
+			  since the first parameter is always stored at [ebp + 8] irrespective of how 
+			  many parameters are pushed.
+
+		- Accessing Parameters and Local Variables
+
+			- ebp is used as the frame pointer
+			- Parameters and local variables are accessed relative to this 
+			- As parameters are pushed before ebp/are higher in memory, they are accessed with 
+			  positive offsets from ebp
+				- Example: p0 [ebp + 8], p1 [ebp + 12]
+
+			- As local variable space is created after ebp they are accessed with negative     	 offsets from ebp
+				-Example: local variable 1 [ebp - 4], local variable 2 [ebp - 8]
+
+
+
+	Example IA32 Assembly Code
+
+		- Consider the following function:
+
+			int f(int p0,int p1,int p2){
+				int x,y;
+				x = p0 + p1;
+				...
+				return p0 + p1;
+
+			}
+
+		- A call f(p0,p1,p2) matches the previous stack frame diagram (3 parameters and 2 	
+			local variables)
+		- Need to generate code for 
+			- calling function f
+			- function f entry
+			- function f body
+			- function f exit
+
+		- Calling function f
+
+			- Pushing parameters p0, p1 and p2 (right to left)
+
+				f(1,2,3)
+
+					push 	3			; push immediate values
+					push 	2			; right to left
+					push 	1			;
+					call 	f 			; call f
+					add 	esp, 12		; add 12 to esp to remove parameters from the stack
+
+
+		- Function Entry
+
+			- saving ebp, intialising new ebp, allocating space for local variables on stack
+			  and pushing non volatile registers used by the function onto the stack (ebx)
+
+				f: 	push 	ebp 		; saving ebp
+					mov 	ebp, esp 	; setting new frame pointer to current stack pointer
+					sub 	esp, 8		; decrementing stack pointer to clear space for local vars
+					push 	ebx 		; save non-volatile registers used by function
+
+
+
+		- Function Body 
+
+			- Parameters pushed on stack space already allocated for local variables 
+				- Parameters: p0 [ebp + 8], p1 [ebp + 12] p2 [ebp + 16]
+				- Local Variables: v0 [ebp - 4] v1 [ebp - 8]
+
+				x = p0 + p1
+
+					mov 	eax,[ebp + 8]	; eax = p0
+					add 	eax,[ebp + 12]	; eax = p0 + p1
+					mov 	[ebp + 4],eax 	; x = p0 + p1
+
+				return x + y
+
+					mov 	eax,[esp - 4]	; eax = x
+					add 	eax,[esp - 8]	; eax = x + y
+
+				NB. Result returned in eax
+
+
+		- Function Exit 
+
+			- Unwind stack frame at function exit
+
+				...
+
+					pop 	ebx 		; restore saved non-volatile registers 
+					mov 	esp, ebp 	; restore esp 
+					pop 	ebp 		; restore ebp
+					ret 	0			; return from function
+
+			- ret pops return address from stack and adds int parameter to esp
+			  (used to to remove parameters from stack)
+			- if integer parameter not specified, defaults to 0
+			- since we are using _cdecl convention we assume that the caller will remove parameters from stack
+
+
+
+
+
+x64:	
+	- extension of IA32 
+	- IA32 registers extend to 64 bits (eax, ebx, ebp, esp become rax, rbx, rbp, rsp)
+	- 8 additional registers, r8 - r15
+	- same instruction set 
+
+
+
+	x64 Function Calling 
+
+		- Use Microsoft calling convention 
+		- First paramters passed in rcx, rdx, r8 & r9 respectively 
+		- Additional parameters passed on stack 
+		- Caller must allocate 32 bytes of shadow space on stack
+		- rax, rcx, rdx, r8,r9,r10 and r11 are volatile 
+		- Having so many registers often means: 
+			1. Can use registers for local registers 
+			2. No need to use a frame pointer 
+			3. No need to save/restore registers 
+
+
+
+	x64 Function Calling Microsoft Convention
+
+		- Caller must allocate 32 bytes (4 x 8 bytes) of shadow space on the stack before calling a function
+		- Caller must also deallocate this shadow space afterwards
+		- Called functions can use their shadow space to spill rcx, rdx, r8,r9
+		- Called functions may use the shadow space for any purpose whatsoever and consequently may read and 
+		  write to it as it sees fit 
+
+		- In a more complex scenario, where a function has more than 4 parameters: 
+
+			- Parameter 5 is passed on stack
+			- Parameters 1-4 passed in rcx, rdx, r8 and r9
+			- Shadow space allocated 
+			- Old frame pointer saved and new frame pointer initialized [rbp]
+			- Space allocated for local variables on stack [if needed]
+			- Non-volatile registers saved on stack [if needed]
+
+

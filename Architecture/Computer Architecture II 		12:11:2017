@@ -1,0 +1,135 @@
+Computer Architecture II 		12/11/2017
+
+RISC and Pipelining 
+
+
+	RISC = Reduced Instruction Set Computer 
+	CISC = Complex Instruction Set Computer 
+
+	for a given benchmark, the performance of a particular computer: 
+
+
+				1	 		where: 	P = time to execute
+	P = 	----------				I = number of instructions executed 
+			 I*C*(1/S)				C = number of clock cycles per instruction 
+			 						S = clock speed
+
+
+	RISC attempts to reduce C 
+	CISC attempts to reduce I 
+
+	assuming identical clock speeds: 
+
+	RISC(C) < CISC(C) [both < 1 with superscalar designs]
+
+	a RISC will execute more instructions for a given benchmark than a CISC [~10.30%]
+
+
+RISC-1 
+
+
+	DESIGN CRITERIA: 
+
+		For an effective single chip solution, a number of artificial design constraints were placed on the RISC-1: 
+
+		- execute one instruction per cycle [instructions must be simple enough to be executed  in one clock cycle]
+
+		- make all instructions the same size [simplifies instruction decoding]
+
+		- access main memory with load and store instructions [load/store architecture]
+
+		- ONLY one addressing mode [indexed]
+
+		- limited support for high level languages [which means C and hence UNIX]
+
+		
+
+	ARCHITECTURE: 
+
+		- 32 x 32 bit registers r0 .. r31 [R0 always contains 0]
+		- PC and PSW [status word]
+		- 31 different instructions, all 32 bits wide 
+
+		Instruction formats:-
+
+			<-7-> 	<-1->  <-5->	<-5->  <-1-> 	<-13->
+			opcode	 scc 	dst		src1	imm		src2 
+		  |_______|______|______|________|______|_________|
+
+		  	<-7-> 	<-1->  <-5-> <---------19------------>
+		  	opcode	 scc 	dst			   Y
+		  |_______|______|______|_________________________|
+
+
+
+		  opcode 		128 possible opcodes
+		  scc 			if set, instruction updates condition codes in PSW
+		  dst 			specifies one of the 32 registers r0-r31
+		  src1 			specifies one of the 32 registers r0-r31
+		  imm,src2		if imm == 0 then 5 lower order bits of src specify one of the 32 
+		  				registers, r0-r31
+
+		  				if imm == 1 then src2 is a sign extended 13 bit constant
+
+		  Y 			19 bit constant/offset, used primarily by relative jumps and 
+		  				ldhi [load relative high]
+
+
+	RISC-1 ARITHMETIC INSTRUCTIONS 
+
+		- 12 arithmetic instructions which take the form: 
+
+			Rdst = Rsrc1 op src2 		NB: 3 address 
+										NB: S2 specifies a register or an immediate constant 
+
+		- the 12 instructions in question are 
+
+			- add 
+			- add with carry 
+			- subtract 
+			- subtract with carry 
+			- reverse subtract 
+			- reverse subtract with carry 
+
+			- and 
+			- or 
+			- xor 
+
+			- sll
+			- srl 
+			- sra 		[shift registers by S2 bits where S is an immediate constant or a 
+						 register value]
+
+			*** THERE ARE NO MOV OR CMP INSTRUCTIONS ***
+
+		- 5 load and 3 store instructions 
+
+			For loading: (Rsrc1) S2, Rdest  Rdest = [Rsrc1 + S2]
+
+			- ldl		load 32 bit long [32 bits]
+			- ldsu		load short unsigned [16 bits]
+			- ldss		load short signed 	[16 bits]
+			- ldbu		load byte unsigned 	[8 bits]
+			- ldbs		load byte signed 	[8 bits]
+
+			* In RISC-1 S2 must be a constant
+			- stl		store long
+			- sts 		store short [lower 16 bits of register]
+			- stb 		store byte	[lower  8 bits or register]
+
+			* loading unsigned clears most significant bits of register
+			* loading signed extends sign across the most significant bits of register
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,76 @@
+	ADD R0,#4,R9			; global var g = 4
+	; Subroutine min
+	; Assuming R26 contains a
+	;		   R27 contains b
+	;		   R28 contains c
+
+min: 
+	ADD 	R0,R26,R16		;	v = a
+	ADD 	R0,R27,R17		;	move b to R17
+	SUB 	R16,R17,R0		;	if(b < v)
+	JGE		min1			; 				(branching to min1 if b >= v)
+	XOR		R0,R0,R0		;				nop
+	ADD 	R0,R17,R16		;		v = b
+
+
+min1:
+	ADD 	R0,R28,R17		; move c to R17
+	SUB 	R16,R17,R0		;	if(c < v)
+	JGE		min2			; 				(branching to min1 if b >= v)
+	XOR		R0,R0,R0		;				nop
+	ADD 	R0,R17,R16		;		v = c
+
+min2: 
+	ADD 	R0,R16,R1 		; return v in R1
+	RET		R25				; exit subroutine and restore PC from R25
+
+
+	; Subroutine p
+	; Assuming R26 contains i
+	;		   R27 contains j
+	;		   R28 contains k
+	;		   R29 contains l
+
+p:
+	ADD 	R0,R26,R10		;	moving g to R10
+	ADD 	R0,R27,R11		;	moving i to R11
+	ADD 	R0,R28,R12		;	moving j to R12
+
+	CALLR 	R25,min 		;   store return address in R25, call min
+
+	XOR 	R0,R0,R0 		; 	NOP 
+	ADD 	R0,R1,R10		; 	moving min(g,i,j) to R10
+	ADD 	R0,R28,R11		;	moving k to R11
+	ADD 	R0,R29,R12		;	moving l to R12
+
+	CALLR	R25,min 		;	min(min(g,i,j),k,l)
+	XOR		R0,R0,R0 		;   NOP
+	RET 	R25				; 	result of min is already in R1, return
+
+
+	; Subroutine gcd
+	; Assuming R26 contains a
+	; 		   R27 contains b
+
+gcd:
+	SUB 	R0,R27,R0 			; if(b==0)
+	JNE		gcd2
+	XOR 	R0,R0,R0  			; NOP 
+	ADD 	R0,R27,R1 
+	RET 	R25 				; return a;
+gcd2:
+	ADD 	R0,R26,R10			; parameter 1 = a
+	ADD 	R0,R27,R11 			; parameter 2 = b
+	CALLR 	R25,mod				; calling mod(a,b)
+	XOR	  	R0,R0,R0 			;
+
+	ADD 	R0,R27,R10			; parameter 1 = b
+	ADD 	R0,R1,R11 			; parameter 2 = a%b
+
+	CALLR 	R25,gcd 			; gcd(b,a%b)
+	XOR 	R0,R0,R0 			; NOP
+	RET 	R25 				;
+
+
+
+

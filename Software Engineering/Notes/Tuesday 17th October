@@ -1,0 +1,24 @@
+Software Engineering Tuesday 17th October 2017
+
+- Lowest Common Ancestor Due Friday: 
+	Implementation and test code 
+	Use any code samples you like 
+	Focus is on test code
+	Deliver a GitHub or equivalent repo
+	Must show stepwise development
+
+	*** New Requirement *** 
+	An implementation of LCA that works for a Directed Acyclic Graph (DAG)
+	Branch your existing solution
+	Develop new tests 
+	Modify/rework as necessary
+	Show your work
+	Deadline: Wednesday 1st November 
+
+	For Friday 20th - 
+
+	Implementation and test code
+	Most probably working for a graph structured as a binary tree 
+	Use any code samples you like
+	"Tag" commit that is current final version
+
