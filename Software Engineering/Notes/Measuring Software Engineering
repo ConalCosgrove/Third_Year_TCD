@@ -1,0 +1,54 @@
+Measuring Software Engineering 
+
+	1. what data? 
+	2. where to compute? 
+	3. what algorithms?
+	4. ethics? 			(summary/opinion (informed))
+	2.5 pages each
+
+1.
+	What data? 
+
+	Taxonomy - table of features, types of data used to judge productivity of software developer. 
+	Code: technical debt, longitudinally, bug fixes, teams, individuals. 
+
+	Non-code: communication, emails, meetings attended, stack overflow posts etc. 
+			  Security, work ethic, consistency
+
+	What use are these different sources of data? what do they show?
+
+	Broad question, come up with some sort of taxonomy that describes the data that can
+	be used to measure the productivity of a software engineer 
+
+	Sources: PSP, University of Hawaii
+
+2.
+	Where to compute this data? 
+
+	Who is offering services to analyse the data you collect? 
+	Analytics as a service, more and more companies appearing which 
+	will compute a companies data on their software engineers 
+
+	Code Climate 
+
+3. 	
+	What algorithms? 
+
+	Computational Intelligence 
+	Algorithm -> train 
+
+	data + code -> decision making algorithm
+
+	tell good engineer from bad engineer. How can it be accurate?
+	false positives and negatives 
+	data analytics companies, what services are offered? 
+
+4. 
+	Ethics 
+
+	Issue with accuracy of measurement rather than measurement itself
+	What companies can measure legally
+	Should companies be allowed to measure seemingly unrelated data about employees 
+	Transparency of data measurement
+	Beneficial or Detrimental to employees careers, work ethic, quality of work etc.
+	Data soverignity

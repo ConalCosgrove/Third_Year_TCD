@@ -26,13 +26,19 @@ class LinkedList:
 
 d = dict()
 count = 0
+output_file = open('db/time_vs_commits.tsv','w')
+output_file.write("letter\tfrequency\n")
 
 con = None
+hours = [0]*24
+for x in range(0,23):
+    hours[x] = 0
 
 rep = g.get_organization('facebook').get_repo('react')
 commitLog = LinkedList()
+
 for commit in rep.get_commits():
-    if count >= 5000:
+    if count >= 9000:
         break
     count = count + 1
     try:
@@ -46,7 +52,7 @@ for commit in rep.get_commits():
         nnode.hour = time_hour
         nnode.minute = time_minute
         nnode.second = time_second
-
+        hours[time_hour] = hours[time_hour] + 1
         commitLog.addNode(nnode)
         #print(str(time_hour) + ":" + str(time_minute) + ":" + str(time_second))
 
@@ -65,22 +71,16 @@ count = 0
 '''
 
 try:
-    con = sqlite.connect('db/data.db')
-    cursor = con.cursor()
 
     printNode = commitLog.head
     count = 0
+    n = 0
+    for y in hours:
+        print("{} Hours: {}".format(n,y))
+        output_file.write("{}\t{}\n".format(n,y))
+        n = n + 1
 
-    while printNode is not None:
-        string = "INSERT INTO COMMITS VALUES (\"" + str(printNode.id) + "\"," + str(printNode.hour) + "," + str(printNode.minute) + "," + str(printNode.second) + ");"
-        cursor.execute(string)
-        print(string)
-        printNode = printNode.nextNode
 
-    cursor.execute('SELECT * FROM COMMITS;')
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
 
 except sqlite.Error as e:
     print("Error : {}".format(e))
