@@ -3,18 +3,25 @@
 
 program Test {
 
-   int i;
-   
+   int i,j;
 
    const c = 25;
-   int k;
-
+   
 
    void SumUp() {
       int j, sum;
   
       void Subtract() {
-         i := i - 1;
+         i := i - 1 + c;
+
+         switch i {
+            case: m;
+               break;
+            case: l;
+               break;
+            case: k;
+               break;
+         };
       }
       
       void Add() {

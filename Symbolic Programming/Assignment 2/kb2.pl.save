@@ -1,0 +1,32 @@
+/* Q1. Write a DCG that accepts strings of the form u2v where u and v are strings
+over the alphabet {0, 1} such that the number of 0’s in u is the same as the
+number of 1’s in v. */ 
+
+s --> one,[0],one,s,zero,[1],zero.
+s --> [2].
+one --> [1],one.
+one --> [1].
+one --> [].
+zero --> [0],zero.
+zero --> [].
+
+
+%Q2.%
+
+s2 --> col(A),col(A),col(A), col(B),nat(B),pet(B), col(C),nat(C),pet(C),{col(A) \= col(B), col(B) \= col(C), col(A) \= col(C)}.
+house1 --> col,nat,pet. 
+house2 --> col,nat,pet.
+house3 --> col,nat,pet.
+col(X) --> [red].
+col(X) --> [blue].
+col(X) --> [green].
+nat(X) --> [english].
+nat(X) --> [japanese]. 
+nat(X) --> [spanish].
+pet(X) --> [jaguar].
+pet(X) -->[snail].
+pet(X) --> [zebra].
+
+%Q3.%
+
+

@@ -49,6 +49,7 @@ AddOp<out Op op>
   )
 .
 
+
 /*-------------------------------------------------------------------------------------------*/
 
 Expr<out int reg,        // load value of Expr into register
@@ -135,6 +136,13 @@ String<out string text>
 
 /*-------------------------------------------------------------------------------------------*/
 
+
+
+
+
+
+/*-------------------------------------------------------------------------------------------*/
+
 MulOp<out Op op>
 =                        (. op = Op.MUL; .)
   ( '*'
@@ -160,9 +168,6 @@ ProcDecl<string progName>
   '{'
      {
      VarDecl
-     }
-     {
-     ConstDecl
      }
      {
      ProcDecl<progName>
@@ -240,6 +245,17 @@ Stat                     (. int type; string name; Obj obj; int reg; .)
                             else SemErr("object is not a procedure");
                          .)
   )
+| "switch"				(. int l1,l2; .)
+  Ident<out name> 		(. obj = tab.Find(name); .)
+  '{'
+  {
+  	"case:" Ident<out name> (. Console.Write("Case\n"); .)
+  	";"
+  	"break;"
+
+  }
+  '}'
+  ';'	
 
 | "if"                   (. int l1, l2; l1 = 0; .)
   Expr<out reg,
@@ -287,7 +303,7 @@ Stat                     (. int type; string name; Obj obj; int reg; .)
                                else gen.StoreLocal(0, tab.curLevel-obj.level, obj.adr, name);
                             }
                             else SemErr("integer type expected");
-                         .)
+                         .)						
 
 | "write"                (. string text; .)
   (
@@ -330,7 +346,7 @@ Tastier                  (. string progName; .)
   Ident<out progName>    (. tab.OpenScope(); .)
   '{'
     { VarDecl }          // global variables
-    { ConstDecl }
+    { ConstDecl }        // globla constants 
     { ProcDecl<progName> }
                          (. tab.CloseScope(); .)
   '}'
@@ -363,25 +379,31 @@ Type<out int type>
 .
 
 /*------------------------------------------------------------------------------------------*/
-
 ConstDecl                  (. string name; int type;Obj obj; int reg; .)
 = 
-  "const"                (. type = integer; .)
-  Ident<out name>        (. obj = tab.NewObj(name, constant, type); .)
+  "const"                
+  Ident<out name>           (. obj = tab.NewObj(name, constant, integer); .)
   "="
-  
-   Expr<out reg,
-         out type>";"    (.
+  (
+    Expr<out reg,
+         out type> ';'   (.
                             if (type == obj.type)
-                                if (obj.level == 0)
+                               if (obj.level == 0)
                                   gen.StoreGlobal(reg, obj.adr, name);
                                else gen.StoreLocal(reg, tab.curLevel-obj.level, obj.adr, name);
                             else SemErr("incompatible types"); // missing line
                          .)
-   
+  | '(' ')' ';'          (.
+                            if (obj.kind == proc)
+                               gen.Call(name);
+                            else SemErr("object is not a procedure");
+                         .)
+    
+   ";"                
+      )  
+  .    
         
-  .
-/*-------------------------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------------------------*/
 
 VarDecl                  (. string name; int type; .)
 = Type<out type>
