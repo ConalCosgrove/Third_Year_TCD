@@ -2,7 +2,7 @@ from github import Github
 import sqlite3 as sqlite
 import sys
 
-g = Github("conalcosgrove", "Greenlion4603")
+g = Github("USERNAME", "PASSWORD")
 
 
 import datetime as dt
