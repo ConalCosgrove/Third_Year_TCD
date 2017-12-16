@@ -18,7 +18,15 @@
 <head></head> 
 <body>
 <h1>Graph of Number of Commits Per Hour</h1>
+<div>
+<div style ="display:flex; align-items:center">
+
+<div style = "float:left"> 
+<h5>Number of <br/> Commits</h5>
+</div>
+<div style = "float:left"> 
 <svg width="960" height="500"></svg>
+</div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -68,4 +76,6 @@ d3.tsv("data/data.tsv", function(d) {
 });
 
 </script>
+</div>
+<div style="margin-left:450px"><h5>Hour of The Day (24hr time)</h5></div>
 </body>
